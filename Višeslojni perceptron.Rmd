@@ -67,8 +67,6 @@ U opštem slučaju postoji $k-1$ izlaznih čvorova, gde je $k$ broj mogućih kla
 U skrivenom sloju postoji $h+1$ čvor, od kojih je jedan intercept. Svaki od njih predstavlja linearnu kombinacihu ulaznih podataka nad kojom je primenjena aktivaciona funkcija. 
 
 
-
-
 Izlazni sloj predstavlja procenu verovatnoće da objekti pripadaju svakoj od predodređenih klasa. Ulazni sloj sadrži zavisne promenljive i intercept, kao i u već poznatim regresionim/klasifikacionim modelima. Između ulaznog i izlaznog sloja nalazi se jedan ili više skrivenih slojeva, koji predstavlja transformaciju ulaznog prostora u $h$-dimenzioni prostor, gde je $h$ broj koji smo odabrali. Nad transformisanim podacima se dalje vrši logistička regresija koja procenjuje klase.
 
 \bigskip
@@ -90,7 +88,7 @@ knitr::include_graphics("hidden layer 5 nodes.png")
 
 ## Aktivaciona funkcija
 
-Kao što je već i pomenuto, aktivaciona funkcija je funkcija koje se primenjuje nad linearnom kombinacijom ulaza skaliranog težinama. Aktivaciona funkcija često uzima oblik sigmoidne funkcije:
+Kao što je već i pomenuto, aktivaciona funkcija je nelinearna funkcija koje se primenjuje nad linearnom kombinacijom ulaza skaliranog težinama. Aktivaciona funkcija često uzima oblik sigmoidne funkcije:
 $$\begin{aligned}
 \sigma(x) = \frac{1}{1+e^{-x}},
 \end{aligned}$$
@@ -128,7 +126,7 @@ Da bismo dobili krajnji izlaz, primenjujemo aktivacionu funkciju još jednom:
 $$\begin{aligned}
 \hat{y} = \sigma(z_2),
 \end{aligned}$$
-gde $\hat{y}$ predstavlja vektor verovatnoća $\hat{Y_i}=P\{Y_i=1\}$.
+gde $\hat{y}$ predstavlja verovatnoće pripadnosti klasama.
 
 Objedinujući rezultate dobijamo:
 $$\begin{aligned}
@@ -154,21 +152,19 @@ Matrica težina u prvoj iteraciji može biti postavljena proizvoljno. U narednim
 
 # Propagacija unazad (eng. *backpropagation*)
 
-Neural network training is about finding weights that minimize prediction error. We usually start our training with a set of randomly generated weights.Then, backpropagation is used to update the weights in an attempt to correctly map arbitrary inputs to outputs.
-Backpropagation, short for “backward propagation of errors”, is a mechanism used to update the weights using gradient descent. It calculates the gradient of the error function with respect to the neural network’s weights. The calculation proceeds backwards through the network.
-
-Gradient descent is an iterative optimization algorithm for finding the minimum of a function; in our case we want to minimize th error function. To find a local minimum of a function using gradient descent, one takes steps proportional to the negative of the gradient of the function at the current point.
-
-
-
-Pozabavimo se sada odabirom koeficijenata matrica težina $W_{in}$ i $W_{out}$. Kod linearne regresije smo parametre ocenjivali metodom maksimalnih kvadrata. Slično, težine u matricama težina ocenjivaćemo (ČIME???).
-
-Poznat nam je logaritamski oblik funkcije maksimalne verodostojnosti za Bernulijevu raspodelu (tj. klasifikator u 2 klase):(OVDE ISPRAVI ZA NASU FJUUUUU!!!!!!!)
+Pozabavimo se sada odabirom koeficijenata matrica težina $W_{in}$ i $W_{out}$. 
+Vrednosti matrica težina nalazimo minimiziranjem funkcije gubitaka (negativna vrednost funkcije maksimalne verodostojnosti):
 $$\begin{aligned}
-l = \sum_{i}\Big(y_i \log \hat{y_i}+(1-y_i)\log(1-\hat{y_i})\Big)
+\min_{W} l(W)
+\end{aligned}$$
+gde je funkcija gubitaka za $K$ klasa klasifikacije
+$$\begin{aligned}
+l(W) = l = -\sum_{i=1}^{n}\sum_{k=1}^{K}\Big(y_i \log \hat{y_i}+(1-y_i)\log(1-\hat{y_i})\Big)
 \end{aligned}$$
 
-Da bismo maksimizirali funkciju $l=f(W)$ koristićemo algoritam opadajućeg gradijenta. Opadajući gradijent je optimizacioni algoritam koji pronalazi lokalni minimum funkcije tako što izvršava više koraka proporcionalnih negativnoj vrednosti gradijenta odgovarajuće funkcije.
+
+Da bismo minimizirali funkciju $l=l(W)$ koristićemo algoritam opadajućeg gradijenta. Opadajući gradijent je optimizacioni algoritam koji pronalazi lokalni minimum funkcije tako što izvršava više koraka proporcionalnih negativnoj vrednosti gradijenta odgovarajuće funkcije. U metodi gradijentnog spusta za iterativno ažuriranje vrednosti matrice težina. Zahvaljujući parcijalnim
+izvodima algoritam je svakom iteracijom bliži globalnom minimumu. 
 
 Algoritam počinje slučajno odabranom vrednošću $W_0$ iz čega se dobija niz elemenata $W_1, W_2, W_3, \dots$ tako da važi:
 $$\begin{aligned}
@@ -176,12 +172,14 @@ W_{t+1}=W_t-\gamma \nabla f(W_t),
 \end{aligned}$$
 gde je $W_t$ vrednost matrice težina u iteraciji $t$, $\nabla f$ gradijent funkcije $f$ u odnosu na $W$, a $\gamma$ ,,brzina učenja".
 
-Napomenimo da je odabir brzine učenja $\gamma$ jako bitan kako bi algoritam konvergirao ka stvarnom minimumu funkcije!
+Napomenimo da je odabir brzine učenja $\gamma$ jako bitan kako bi algoritam konvergirao ka stvarnom minimumu funkcije! Ukoliko je ova vrednost prevelika moguće je prekoračiti minimum (divergirati, tj. udaljavati od minimuma). Kod
+premale vrednosti, postojaće više iteracija gradijentnog spusta, a samim tim dužina celog procesa treniranja će se povećati.
 
 Shema po kojoj se vrši propagacija unapred u dvoslojnom perceptronu je: 
 $$\begin{aligned}
 X \rightarrow XW_1 \rightarrow H_1 = \sigma(XW_1) \rightarrow H_1W_2 \rightarrow H_2=\sigma(H_1W_2) \rightarrow H_2W_3\stackrel{\text{softmax}}{\rightarrow} \hat{y}
 \end{aligned}$$
+
 Kako bismo vršili propagaciju unazad neophodno je naći ocene za prikazane matrice $W_3, W_2,W_1$. Učinimo to sada. Preglednosti radi prikažimo matrice koje će biti korišćene u daljem izvođenju zajedno sa svojim dimenzijama i opisima:
 
 ```{r echo=FALSE, warning = FALSE}
@@ -236,7 +234,8 @@ softmax(x) = \bigg(\frac{e^{x_1}}{\sum_{i=1}^{m}e^{x_i}}, \dots, \frac{e^{x_m}}{
 \end{aligned}
 $$
 
-Primetimo da se vrednosti novog vektora sumiraju na 1, te ih stoga možemo koristiti kao raspodelu verovatnoće. Za vrednost aproksimacije se uzima kategorija koja odgovara izlazu sa najvišom vrednošću. 
+Primetimo da se vrednosti novog vektora sumiraju na 1, te ih stoga možemo koristiti kao raspodelu verovatnoće. Takođe, primetimo da ova funkcija dodatno naglašava razlike između koordinatama polaznog vektora. Najveća pozitivna vrednost će biti transformisana u novu vrednost koja još više odskače od drugih. Za vrednost aproksimacije se uzima kategorija koja odgovara izlazu sa najvišom vrednošću.
+
 
 \newpage
 
