@@ -19,7 +19,6 @@ text-align: justify}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-SANFDRARA
 
 # Uvod 
 
