@@ -487,7 +487,7 @@ train <- function(data, data_test ,
   y_test <- vector_to_matrix(data_test$y)
   x_test <- as.matrix(data_test[,-785])
  
-  # Pokrećemo brojač koji meri vrmee izvršavanja funkcije
+  # Pokrećemo brojač koji meri vreme izvršavanja funkcije
   start_time <- Sys.time()
  
   # Deklarišemo nizove u kojima ćemo skladištiti preciznost i vrednost funkcije gubitaka
@@ -497,32 +497,41 @@ train <- function(data, data_test ,
   loss_plot <- c()
  
   d <- ncol(x)
+  # Prve matrice težina inicijalizujemo slučajnim vrednostima
   if(type == "uniform"){
-    w1 <- cbind(0,matrix(runif((d+1) * hidden1), d+1, hidden1))
-    w2 <- cbind(0, matrix(runif((hidden1+1)*hidden2), hidden1+1, hidden2))
-    w3 <- matrix(runif((hidden2 + 1)*10), hidden2+1, 10)
-  }else {
-    w1 <- cbind(0,matrix(rnorm((d+1) * hidden1), d+1, hidden1))
-    w2 <- cbind(0, matrix(rnorm((hidden1+1)*hidden2), hidden1+1, hidden2))
-    w3 <- matrix(rnorm((hidden2 + 1)*10), hidden2+1, 10)
+    w1 <- cbind(0, matrix(runif((d+1) * hidden1), d + 1, hidden1))
+    w2 <- cbind(0, matrix(runif((hidden1+1)*hidden2), hidden1 + 1, hidden2))
+    w3 <- matrix(runif((hidden2 + 1)*10), hidden2 + 1, 10)
+  }
+  else {
+    w1 <- cbind(0, matrix(rnorm((d+1) * hidden1), d + 1, hidden1))
+    w2 <- cbind(0, matrix(rnorm((hidden1+1)*hidden2), hidden1 + 1, hidden2))
+    w3 <- matrix(rnorm((hidden2 + 1)*10), hidden2 + 1, 10)
   }
  
+  # Sledeći koraci se ponavljaju onoliko puta koliki je broj iteracija
   for (i in 1:iterations){
+    # Podaci i matrice težina se propagiraju unapred
     ff <- feedforward(x, w1, w2, w3)
    
+    # U zavisnosti od argumenta type pozivamo funkciju parallel_backpropagate ili backpropagate
     if(type == "parallel"){
       bp <- parallel_backpropagate(x = x, y = y, y_hat = ff$probs, 
                                    w1 = w1, w2 = w2, w3 = w3, 
                                    h1 = ff$h1, h2 = ff$h2, 
                                    learn_rate = learn_rate , 
                                    N = 8)
-    }else if(dynamic == TRUE){
-      # ovde moze da se menja kako se dinamicki menja lear_rate
+    }
+    # U zavisnosti od argumenta dynamic dinamički se menja brzina učenja, tj.
+    # ostaje unapred fiksiran broj
+    else if(dynamic == TRUE){
+      # Može se podešavati dinamika kojom se menja brzina učenja
       bp <- backpropagate(x = x, y = y, y_hat = ff$probs, 
                           w1 = w1, w2 = w2, w3 = w3, 
                           h1 = ff$h1, h2 = ff$h2, 
                           learn_rate = learn_rate/i)
-    }else{
+    }
+    else{
     bp <- backpropagate(x = x, y = y, y_hat = ff$probs, 
                         w1 = w1, w2 = w2, w3 = w3, 
                         h1 = ff$h1, h2 = ff$h2, learn_rate = learn_rate)
@@ -531,14 +540,17 @@ train <- function(data, data_test ,
     w1 <- bp$w1
     w2 <- bp$w2
     w3 <- bp$w3
-
+  
+    # Svake pete iteracije se čuvaju vrednost gubitka, predikcije nad test, tj. 
+    # trening podacima, kao i tačnost predikcije na test i trening podacima.
+    # Ove vrednosti omogućavaju vizuelno praćenje kvaliteta modela
     if(i%%5 == 0) {
       l <- loss(y, ff$probs)
       y_test_pred <- predict(result, x_test)
       y_train_pred <- predict(result, x)
       loss_plot <- c(loss_plot,l)
-      accuracy_test_plot <- c(accuracy_test_plot,accuracy(y_test_pred,data_test$y))
-      accuracy_training_plot <- c(accuracy_training_plot,accuracy(y_train_pred,data$y))
+      accuracy_test_plot <- c(accuracy_test_plot, accuracy(y_test_pred,data_test$y))
+      accuracy_training_plot <- c(accuracy_training_plot, accuracy(y_train_pred,data$y))
     }
    
     #OBRISI OVO
@@ -553,9 +565,12 @@ train <- function(data, data_test ,
                    loss_plot = loss_plot)
   }
  
+  # Zaustavljamo brojač koji meri vreme izvršavanja funkcija
   end_time <- Sys.time()
+  # U slučaju da je prosleđen argument time = TRUE funkcija vraća i broj 
+  # sekundi izvršavanja
   if(time == TRUE)
-    print(round(end_time-start_time,2))
+    print(round(end_time - start_time,2))
  
   result
 }
