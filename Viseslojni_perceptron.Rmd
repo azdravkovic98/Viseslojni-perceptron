@@ -149,11 +149,11 @@ Matrica težina u prvoj iteraciji može biti postavljena proizvoljno. U narednim
 # Propagacija unazad (eng. *backpropagation*)
 
 Pozabavimo se sada odabirom koeficijenata matrica težina $W_{in}$ i $W_{out}$. 
-Vrednosti matrica težina nalazimo minimiziranjem funkcije gubitaka (negativna vrednost funkcije maksimalne verodostojnosti):
+Vrednosti matrica težina nalazimo minimiziranjem funkcije cene (negativna vrednost funkcije maksimalne verodostojnosti):
 $$\begin{aligned}
 \min_{W} l(W)
 \end{aligned}$$
-gde je funkcija gubitaka za $K$ klasa klasifikacije
+gde je funkcija cene za $K$ klasa klasifikacije
 $$\begin{aligned}
 l(W) = l = -\sum_{i=1}^{n}\sum_{k=1}^{K}\Big(y_i \log \hat{y_i}+(1-y_i)\log(1-\hat{y_i})\Big)
 \end{aligned}$$
@@ -164,7 +164,7 @@ izvodima algoritam je svakom iteracijom bliži globalnom minimumu.
 
 Algoritam počinje slučajno odabranom vrednošću $W_0$ iz čega se dobija niz elemenata $W_1, W_2, W_3, \dots$ tako da važi:
 $$\begin{aligned}
-W_{t+1}=W_t-\gamma \nabla f(W_t),
+W_{t+1}=W_t-\gamma \nabla l(W_t),
 \end{aligned}$$
 gde je $W_t$ vrednost matrice težina u iteraciji $t$, $\nabla f$ gradijent funkcije $f$ u odnosu na $W$, a $\gamma$ ,,brzina učenja".
 
@@ -187,35 +187,54 @@ kable_styling(latex_options = "striped")
 ```
 
 
-Nađimo izvode funkcije $l$ u odnosu na matrice težina $W_i$.
+Nađimo izvode funkcije cene $l$ u odnosu na matrice težina $W_i$.
 
+
+$$l(\hat{y}) = -\sum_{i=1}^n \Big({I \{ y_{i1}=0 \}  \log \hat{y_{i1}} + \dots + I \{ y_{i10}=9 \}  log \hat{y_{i10}}}\Big)$$
+$$ \frac{\partial{l}}{\partial{\hat{y_{i1}}}} = \frac{I\{y_{i1} = 0\}}{\hat{y_{i1}}} - \frac{I\{y_{i2} = 1\}}{1-\hat{y_{i1}}-\dots-\hat{y_{i10}}} - ... - \frac{I\{y_{i10} = 9\}}{1-\hat{y_{i1}}-\dots-\hat{y_{i9}}} = \\
+\frac{I\{y_{i1} = 0\}}{\hat{y_{i1}}} - \frac{I\{y_{i2} = 1\}}{\hat{y_{i2}}} - ... - \frac{I\{y_{i10} = 9\}}{\hat{y_{i10}}} $$
 
 *Napomena.* @ označava operaciju matričnog množenja, dok $\textasteriskcentered$ označava pokoordinatno, tj. skalarno množenje.
 
-$$\begin{aligned}
-\frac{\partial l}{\partial W_3} = H_2^T @ \Big(\frac{\partial l}{\partial y} \textasteriskcentered \hat{y} (1-\hat{y})\Big),
-\end{aligned}$$
-\vspace{0.5ex}
-$$\begin{aligned}
-\frac{\partial l}{\partial W_2} = H_1^T @ \Bigg( \bigg( \Big( \frac{\partial l}{\partial \hat{y}} \textasteriskcentered \hat{y} (1-\hat{y}) \Big) @ W_3^T \bigg) \textasteriskcentered \Big[\sigma(H_1W_2)(1-\sigma(H_1W_2))\Big] \Bigg)
-\end{aligned}$$
-\vspace{0.5ex}
-$$\begin{aligned}
-\frac{\partial l}{\partial W_1} = X^T @ \Bigg\{ \Bigg( \bigg( \Big( (\frac{\partial l}{\partial \hat{y}} \textasteriskcentered \hat{y}(1-\hat{y})) @ W_3^T \Big) \textasteriskcentered \Big[\sigma(H_1W_2)(1-\sigma(H_1W_2)) \Big] \bigg) @ W_2^T \Bigg) \textasteriskcentered \Big[\sigma(H_1W_2)(1-\sigma(H_1W_2)) \Big] \Bigg\}
-\end{aligned}$$
+Izvode funkcije gibitaka računamo u odnosu na matrice težina $W_1$, $W_2$ i $W_3$ i pomoću izračunatih vrednosti ažuriramo vrednosti matrica $W_1$, $W_2$ i $W_3$. Može se pokazati da važi:
+
+$$\frac{\partial{l}}{\partial{W_3}} = H_2^T@(\frac{\partial{l}}{\partial{\hat{y}}}\cdot\nabla softmax(H_2@W_3)) $$
+
+$$\frac{\partial{l}}{\partial{W_2}} = H_1^T@ \Bigg( \Big( \Big( \frac{\partial{l}}{\partial{\hat{y}}}\cdot\nabla softmax(H_2@W_3)\Big)@W_3^T\Big)\cdot\sigma'(H_1@W_2)\Bigg) $$
+
+$$\frac{\partial{l}}{\partial{W_1}} = X^T @ \Bigg( \Bigg( \Bigg( \Big( \big( \frac{\partial{l}}{\partial{\hat{y}}}\cdot \nabla softmax(H_2@W_3)\big) @W_3^T \Big) \cdot \sigma'(H_1@W_2) \Bigg) @ W_2^T \Bigg) \cdot \sigma'(X@W_1) \Bigg) $$
+
+Uočimo da važi:
+
+$$\sigma'(x) = \frac{e^{-x}}{(1+e^{-x})^2} = \sigma(x)(1-\sigma(x))$$
+
+Kako je
+
+$$\frac{\partial{softmax}}{{\partial{x_k}}} = \frac{e^{x_k}(\sum_{i=1}^n {e^{x_i}}) - e^{x_k}e^{x_k}}{(\sum_{i=1}^n {e^{x_i}})^2} = \frac{e^{x_k}(\sum_{i=1, i\neq k}^n {e^{x_i}})}{(\sum_{i=1}^n {e^{x_i}})^2} $$
+
+imamo da je
+
+$$\nabla softmax(x_1, \dots,x_{10}) = softmax(x_1, \dots, x_{10}) \cdot (1-softmax(x_1,\dots,x_{10})) $$
+
+Sada izvodi dobijaju sledeći oblik:
+
+$$\frac{\partial{l}}{\partial{W_3}} = H_2^T@(\hat{y}-y) $$
+
+$$\frac{\partial{l}}{\partial{W_2}} = H_1^T@ \Bigg( \Big( ( \hat{y}-y)@W_3^T\Big)\cdot\Big(\sigma(H_1@W_2)\cdot(1-\sigma(H_1@W_2))\Big)\Bigg) $$
+
+$$\frac{\partial{l}}{\partial{W_1}} = X^T @ \Bigg( \Bigg( \Bigg( \Big( (\hat{y} - y) @W_3^T \Big) \cdot\Big(\sigma(H_1@W_2)\cdot(1-\sigma(H_1@W_2))\Big) \Bigg) @ W_2^T \Bigg) \cdot \Big(\sigma(H_1@W_2)\cdot(1-\sigma(H_1@W_2))\Big) \Bigg) $$
 
 Ilustrujmo kako bi u R-u izgledala funkcija koja vrši propagaciju unazad na goreopisan način:
 
 ```{r}
-backpropagate <- function(x, y, y_hat, w1, w2, h, learn_rate) {
-  dw2 <- t(cbind(1, h)) %*% (y_hat - y)
-  dh  <- (y_hat - y) %*% t(w2[-1, , drop = FALSE])
-  dw1 <- t(cbind(1, x)) %*% (h * (1 - h) * dh)
+gradient <- function(x, y, y_hat, w1, w2, w3, h1, h2) {
+  dmle <- y_hat - y
+  dw3 <- t(h2) %*% dmle
+  d <- dmle%*%t(w3)
+  dw2 <- t(h1)%*%(d*h2*(1-h2))
+  dw1 <- t(cbind(1,x))%*%(((d*h2*(1-h2))%*%t(w2))*h1*(1-h1))
   
-  w1 <- w1 - learn_rate * dw1
-  w2 <- w2 - learn_rate * dw2
-  
-  list(w1 = w1, w2 = w2)
+  list(dw1 = dw1, dw2 = dw2, dw3 = dw3)
 }
 ```
 
@@ -294,7 +313,9 @@ data_training$y <- y_training$labels
 image_test <- foreach(i = 1:10000) %dopar% {
     x_test$pic[(1+(i-1)*784):(i*784)]
 }
-data_test <- data.frame(matrix(unlist(image_test), nrow=length(image_test), byrow=TRUE))
+data_test <- data.frame(matrix(unlist(image_test), 
+                               nrow=length(image_test), 
+                               byrow=TRUE))
 data_test$y <- y_test$labels
 ```
 
@@ -323,29 +344,9 @@ feedforward <- function(x, w1, w2, w3) {
 }
 ```
 
-Setimo se funkcije gubitaka:
 
-$$l(\hat{y}) = -\sum_{i=1}^n \Big({I \{ y_{i1}=0 \}  \log \hat{y_{i1}} + \dots + I \{ y_{i10}=9 \}  log \hat{y_{i10}}}\Big)$$
-$$ \frac{\partial{l}}{\partial{\hat{y_{i1}}}} = \frac{I\{y_{i1} = 0\}}{\hat{y_{i1}}} - \frac{I\{y_{i2} = 1\}}{1-\hat{y_{i1}}-\hat{y_{i3}}-\hat{y_{i4}}-\hat{y_{i5}}-\hat{y_{i6}}-\hat{y_{i7}}-\hat{y_{i8}}-\hat{y_{i9}}-\hat{y_{i10}}} - ... - \frac{I\{y_{i10} = 9\}}{1-\hat{y_{i1}}-\hat{y_{i2}}-\hat{y_{i3}}-\hat{y_{i4}}-\hat{y_{i5}}-\hat{y_{i6}}-\hat{y_{i7}}-\hat{y_{i8}}-\hat{y_{i9}}} = \frac{I\{y_{i1} = 0\}}{\hat{y_{i1}}} - \frac{I\{y_{i2} = 1\}}{\hat{y_{i2}}} - ... - \frac{I\{y_{i10} = 9\}}{\hat{y_{i10}}} $$
+Na već opisan načim nalazimo gradijent matrica $W_1,W_2,W_3$:
 
-
-Setimo se da u algoritmu propagacije unazad računamo izvode funkcije gibotaka u odnosu na matrice težina $W_1$, $W_2$ i $W_3$ i pomoću izračunatih vrednosti ažuriramo vrednosti matrica $W_1$, $W_2$ i $W_3$. Može se pokazati da važi (napomena: sa $@$ je označeno matrično množenje, a sa $\cdot$ koordinatno množenje):
-$$\frac{\partial{l}}{\partial{W_3}} = H_2^T@(\frac{\partial{l}}{\partial{\hat{y}}}\cdot\nabla softmax(H_2@W_3)) $$
-
-$$\frac{\partial{l}}{\partial{W_2}} = H_1^T@ \Bigg( \Big( \Big( \frac{\partial{l}}{\partial{\hat{y}}}\cdot\nabla softmax(H_2@W_3)\Big)@W_3^T\Big)\cdot\sigma'(H_1@W_2)\Bigg) $$
-$$\frac{\partial{l}}{\partial{W_1}} = X^T @ \Bigg( \Bigg( \Bigg( \Big( \big( \frac{\partial{l}}{\partial{\hat{y}}}\cdot \nabla softmax(H_2@W_3)\big) @W_3^T \Big) \cdot \sigma'(H_1@W_2) \Bigg) @ W_2^T \Bigg) \cdot \sigma'(X@W_1) \Bigg) $$
-Uočimo da važi:
-$$\sigma'(x) = \frac{e^{-x}}{(1+e^{-x})^2} = \sigma(x)(1-\sigma(x))$$
-Kako je
-$$\frac{\partial{softmax}}{{\partial{x_k}}} = \frac{e^{x_k}(\sum_{i=1}^n {e^{x_i}}) - e^{x_k}e^{x_k}}{(\sum_{i=1}^n {e^{x_i}})^2} = \frac{e^{x_k}(\sum_{i=1, i\neq k}^n {e^{x_i}})}{(\sum_{i=1}^n {e^{x_i}})^2} $$
-imamo da je
-$$\nabla softmax(x_1, x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_{10}) = softmax(x_1, x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_{10}) \cdot (1-softmax(x_1, x_2,x_3,x_4,x_5,x_6,x_7,x_8,x_9,x_{10})) $$
-sada naši izvodi dobijaju sledeći oblik:
-$$\frac{\partial{l}}{\partial{W_3}} = H_2^T@(\hat{y}-y) $$
-$$\frac{\partial{l}}{\partial{W_2}} = H_1^T@ \Bigg( \Big( ( \hat{y}-y)@W_3^T\Big)\cdot\Big(\sigma(H_1@W_2)\cdot(1-\sigma(H_1@W_2))\Big)\Bigg) $$
-$$\frac{\partial{l}}{\partial{W_1}} = X^T @ \Bigg( \Bigg( \Bigg( \Big( (\hat{y} - y) @W_3^T \Big) \cdot\Big(\sigma(H_1@W_2)\cdot(1-\sigma(H_1@W_2))\Big) \Bigg) @ W_2^T \Bigg) \cdot \Big(\sigma(H_1@W_2)\cdot(1-\sigma(H_1@W_2))\Big) \Bigg) $$
-
-Ovde nalazimo gradijent matrica W1,W2,W3
 ```{r warning = FALSE, message = FALSE}
 gradient <- function(x, y, y_hat, w1, w2, w3, h1, h2) {
   dmle <- y_hat - y
@@ -358,6 +359,13 @@ gradient <- function(x, y, y_hat, w1, w2, w3, h1, h2) {
 }
 ```
 
+Algoritam propagacije unazad podrazumeva računanje gradijenta funkcije cene, nakon čega je potrebno ažurirati vrednosti matrica težina po formuli:
+
+$$\begin{aligned}
+W_{t+1}=W_t-\gamma \nabla l(W_t),
+\end{aligned}$$
+
+
 ```{r warning = FALSE, message = FALSE}
 backpropagate <- function(x, y, y_hat, w1, w2, w3, h1, h2, learn_rate = 0.0001) {
   grad <- gradient(x, y, y_hat, w1, w2, w3, h1, h2)
@@ -368,49 +376,80 @@ backpropagate <- function(x, y, y_hat, w1, w2, w3, h1, h2, learn_rate = 0.0001) 
   list(w1 = w1, w2 = w2, w3 = w3)
 }
 ```
-Ovo je funkcija slicna backpropagate koja umesto da racuna gradijent odjednom, deli podatke na N delova i ona paralelno izvrsava te radnje i ukupan gradijent racuna kao zbir N gradijenata. Nju koristimo iz prakticnih razloga jer je nesto brza od prethodne funkcije
+
+
+Implementirajmo sada paralelizovanu verziju funkcije koja vrši propagaciju unazad. Umesto računanja gradijenta odjednom, podatke ćemo podeliti na $N$ delova, gde $N$ predstavlja broj jezgara računara. Dalje ćemo paralelno računati gradijente za $N$ delova, a ukupan gradijent će biti zbir $N$ dobijenih gradijenata. 
+Ovako definisana funkcija smanjuje dužinu izvršavanja.
+
+
 ```{r warning = FALSE, message = FALSE}
-#ovo nam pomaze oko paralelnog izvrsavanja
+# Omogućavanje paralelnog izvršavanja
 library("doFuture")
 registerDoFuture()
 plan(multisession)
 
-parallel_backpropagate <- function(x, y, y_hat, w1, w2, w3, h1, h2, learn_rate = 0.0001, N = no_cores) {
+# Koristimo već ustaljene oznake za podatke, matrice težina, skrivene slojeve,
+# brzinu učenja i broj jezgara računara
+parallel_backpropagate <- function(x, y, y_hat, w1, w2, w3, h1, h2, 
+                                   learn_rate = 0.0001, N = no_cores) {
   n <- ceiling(nrow(x)/N)
-  grads <- foreach(i = 1:N)%dopar%{
-    gradient(x[((i-1)*n+1):(i*n),],y[((i-1)*n+1):(i*n),],y_hat[((i-1)*n+1):(i*n),],w1,w2,w3,h1[((i-1)*n+1):(i*n),],h2[((i-1)*n+1):(i*n),])
+  
+  # Računamo gradijente paralelno nad N jezgara i podacima podeljenim na N delova
+  grads <- foreach(i = 1:N) %dopar% {
+    gradient(x[((i-1)*n+1):(i*n),],
+             y[((i-1)*n+1):(i*n),],
+             y_hat[((i-1)*n+1):(i*n),],
+             w1, w2, w3,
+             h1[((i-1)*n+1):(i*n),],
+             h2[((i-1)*n+1):(i*n),])
   }
   
+  # Deklaracija gradijenata
   dw1 <- 0
   dw2 <- 0
   dw3 <- 0
+  
+  # Konačni gradijent računamo kao zbir dobijenih gradijenata
   for(grad in grads){
     dw1 <- dw1 + grad$dw1
     dw2 <- dw2 + grad$dw2
     dw3 <- dw3 + grad$dw3
   }
+  
+  # Ažuriramo matrice težina
   w1 <- w1 - learn_rate * dw1
   w2 <- w2 - learn_rate * dw2
   w3 <- w3 - learn_rate * dw3
   
+  # Povratna vrednost funkcije su matrice težina
   list(w1 = w1, w2 = w2, w3 = w3)
 }
 ```
-Funkcija gubitaka
+
+Definišimo funkciju gubitaka:
+
 ```{r warning = FALSE, message = FALSE}
 loss <- function(Y,Y_hat){
   -sum(Y*log(Y_hat))
 }
 ```
-Ovde vracamo predikcije
+
+Definišimo funkciju koja, uz prosleđen model koji ćemo tek napraviti, klasifikuje prosleđene podatke. 
+
 ```{r warning = FALSE, message = FALSE}
 predict <- function(model, X){
+  # Unapred propagiramo podatke i matrice težina
   ff <- feedforward(X, model$w1, model$w2, model$w3)
+  # Funkcija feedforward kao povratnu vrednost ima ff$probs, što predstavlja 
+  # verovatnoće da se slike klasifikuju u svaku od kategorija 0,..., 9. Slika se
+  # klasifikuje u onu klasu koja ima najveću verovatnoću
   prediction <- apply(ff$probs, 1, function(x) {which.max(x)-1})
   prediction
 }
 ```
-Trazimo preciznost, u smislu koliko procentualno smo pogodili rezultata
+
+Nađ
+
 ```{r warning = FALSE, message = FALSE}
 accuracy <- function(y_pred, y) {
   mean(y==y_pred)*100

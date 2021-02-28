@@ -1,9 +1,9 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.2.28)  28 FEB 2021 22:40
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.2.28)  28 FEB 2021 23:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Višeslojni-perceptron.tex
-(./Višeslojni-perceptron.tex
+**Viseslojni_perceptron.tex
+(./Viseslojni_perceptron.tex
 LaTeX2e <2020-10-01> patch level 4
 L3 programming layer <2021-02-18> (c:/Users/azdra/AppData/Roaming/TinyTeX/texmf
 -dist/tex/latex/base/article.cls
@@ -622,8 +622,8 @@ Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
 sty
 Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
 \etb@tempcnta=\count321
-) (./Višeslojni-perceptron.aux)
-\openout1 = `Višeslojni-perceptron.aux'.
+) (./Viseslojni_perceptron.aux)
+\openout1 = `Viseslojni_perceptron.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 131.
 LaTeX Font Info:    ... okay on input line 131.
@@ -931,9 +931,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 131.
 LaTeX Info: Redefining \pageref on input line 131.
 LaTeX Info: Redefining \nameref on input line 131.
-(./Višeslojni-perceptron.out) (./Višeslojni-perceptron.out)
+(./Viseslojni_perceptron.out) (./Viseslojni_perceptron.out)
 \@outlinefile=\write4
-\openout4 = `Višeslojni-perceptron.out'.
+\openout4 = `Viseslojni_perceptron.out'.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
@@ -1038,86 +1038,25 @@ Overfull \hbox (47.92786pt too wide) in paragraph at lines 406--417
 
 
 LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 422.
+ 427.
 
 
-Overfull \hbox (0.35901pt too wide) in paragraph at lines 421--423
+Overfull \hbox (0.35901pt too wide) in paragraph at lines 426--428
 []\TU/lmr/m/it/10 Napomena. \TU/lmr/m/n/10 @ označava operaciju matričnog množe
 nja, dok $[]$ označava pokoordinatno, tj. skalarno množenje. 
  []
 
-
-LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 425.
-
-
-LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 427.
-
-
-LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 427.
-
-
-LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 429.
-
-
-LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 429.
-
-
-LaTeX Warning: Command \textasteriskcentered invalid in math mode on input line
- 429.
-
-
-Overfull \hbox (16.04504pt too wide) detected at line 430
-[][]
- []
-
-[5] [6] [7]
-Overfull \hbox (186.58258pt too wide) detected at line 565
-[][][][][][][][][][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][] 
-[][][] [] [][][] [][] [][] [][] [][] [][] [][] [][] [][] [][]
- []
-
-
-Overfull \hbox (406.72711pt too wide) detected at line 581
-[][][][] [] [] []
- []
-
-
-Overfull \hbox (296.28288pt too wide) detected at line 582
-[] [] [] [] [] [] [][][] [] [] [] [] [] [] [] [][][] [] []
- []
-
-
-Overfull \hbox (153.35786pt too wide) detected at line 597
-[][][][][][][][][][][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][
-] [][][] [] [][][][][][][][][][][] [][][] [][][] [][][] [][][] [][][] [][][] []
-[][] [][][] [][][] [] [][] [] [][][][][][][][][][][] [][][] [][][] [][][] [][][
-] [][][] [][][] [][][] [][][] [][][][]
- []
-
-[8] [9] [10]
-Underfull \vbox (badness 10000) detected at line 781
- []
-
-
-Underfull \vbox (badness 10000) detected at line 781
- []
-
-[11] [12] (./Višeslojni-perceptron.aux)
-Package rerunfilecheck Info: File `Višeslojni-perceptron.out' has not changed.
+[5] [6] [7] [8] [9] [10] [11] [12] (./Viseslojni_perceptron.aux)
+Package rerunfilecheck Info: File `Viseslojni_perceptron.out' has not changed.
 (rerunfilecheck)             Checksum: 2F9F1C44AA53BEADD5AE45EC0F55E2F2;1867.
  ) 
 Here is how much of TeX's memory you used:
  18038 strings out of 478429
  316677 string characters out of 5860210
- 823239 words of memory out of 5000000
+ 813239 words of memory out of 5000000
  37609 multiletter control sequences out of 15000+600000
  410003 words of font info for 83 fonts, out of 8000000 for 9000
  478 hyphenation exceptions out of 8191
  98i,14n,122p,981b,453s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on Višeslojni-perceptron.pdf (12 pages).
+Output written on Viseslojni_perceptron.pdf (12 pages).
