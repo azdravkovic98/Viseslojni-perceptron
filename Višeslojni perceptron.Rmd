@@ -8,6 +8,8 @@ author:
 output: 
   pdf_document:
     latex_engine: xelatex
+bibliography: reference.bib 
+
 ---
 
 <style>
@@ -60,12 +62,7 @@ knitr::include_graphics("input-hidden-output.png")
 
 Ulazni sloj neuronske mreže je dizajn matrica, tj. matrica $X = \begin{bmatrix} 1 & x \end{bmatrix}$. Izlazni sloj je vektor procenjenih verovatnoća $\hat{y}$. Neuronska mreža sadrži i skriveni sloj, za koji se može reći da je srednja matrica dizajna između ulaza i izlaza. Duboko učenje (eng. *deep learning*) je samo neuronska mreža sa više skrivenih slojeva.
 
-Ako imamo $d$ ulaznih promenljivih, tada će postojati $d+1$ ulazni čvor - po jedan za svaki prediktor i jedan za intercept. 
-
-U opštem slučaju postoji $k-1$ izlaznih čvorova, gde je $k$ broj mogućih klasa u koje delimo naše podatke. $k$-ti čvor je nepotreban, jer on predstavlja ,,ono što nije nijedna od prethodnih klasa" (JE L OVO TACNO). U slučaju binomne klasifikacije postojao bi samo jedan izlazni čvor, jer $P\{Y = 0\} = 1 - P\{Y = 1\}$.
-
-U skrivenom sloju postoji $h+1$ čvor, od kojih je jedan intercept. Svaki od njih predstavlja linearnu kombinacihu ulaznih podataka nad kojom je primenjena aktivaciona funkcija. 
-
+Ako imamo $d$ ulaznih promenljivih, tada će postojati $d+1$ ulazni čvor - po jedan za svaki prediktor i jedan za intercept. U opštem slučaju postoji $k$ izlaznih čvorova, gde je $k$ broj mogućih klasa u koje delimo naše podatke. U skrivenom sloju postoji $h+1$ čvor, od kojih je jedan intercept. Svaki od njih predstavlja linearnu kombinacihu ulaznih podataka nad kojom je primenjena aktivaciona funkcija. 
 
 Izlazni sloj predstavlja procenu verovatnoće da objekti pripadaju svakoj od predodređenih klasa. Ulazni sloj sadrži zavisne promenljive i intercept, kao i u već poznatim regresionim/klasifikacionim modelima. Između ulaznog i izlaznog sloja nalazi se jedan ili više skrivenih slojeva, koji predstavlja transformaciju ulaznog prostora u $h$-dimenzioni prostor, gde je $h$ broj koji smo odabrali. Nad transformisanim podacima se dalje vrši logistička regresija koja procenjuje klase.
 
@@ -163,7 +160,7 @@ l(W) = l = -\sum_{i=1}^{n}\sum_{k=1}^{K}\Big(y_i \log \hat{y_i}+(1-y_i)\log(1-\h
 \end{aligned}$$
 
 
-Da bismo minimizirali funkciju $l=l(W)$ koristićemo algoritam opadajućeg gradijenta. Opadajući gradijent je optimizacioni algoritam koji pronalazi lokalni minimum funkcije tako što izvršava više koraka proporcionalnih negativnoj vrednosti gradijenta odgovarajuće funkcije. U metodi gradijentnog spusta za iterativno ažuriranje vrednosti matrice težina. Zahvaljujući parcijalnim
+Da bismo minimizovali funkciju $l=l(W)$ koristićemo algoritam opadajućeg gradijenta. Opadajući gradijent je optimizacioni algoritam koji pronalazi lokalni minimum funkcije tako što izvršava više koraka proporcionalnih negativnoj vrednosti gradijenta odgovarajuće funkcije. U metodi gradijentnog spusta za iterativno ažuriranje vrednosti matrice težina. Zahvaljujući parcijalnim
 izvodima algoritam je svakom iteracijom bliži globalnom minimumu. 
 
 Algoritam počinje slučajno odabranom vrednošću $W_0$ iz čega se dobija niz elemenata $W_1, W_2, W_3, \dots$ tako da važi:
@@ -172,7 +169,7 @@ W_{t+1}=W_t-\gamma \nabla f(W_t),
 \end{aligned}$$
 gde je $W_t$ vrednost matrice težina u iteraciji $t$, $\nabla f$ gradijent funkcije $f$ u odnosu na $W$, a $\gamma$ ,,brzina učenja".
 
-Napomenimo da je odabir brzine učenja $\gamma$ jako bitan kako bi algoritam konvergirao ka stvarnom minimumu funkcije! Ukoliko je ova vrednost prevelika moguće je prekoračiti minimum (divergirati, tj. udaljavati od minimuma). Kod
+Napomenimo da je odabir brzine učenja $\gamma$ jako bitan kako bi algoritam konvergirao ka stvarnom minimumu funkcije. Ukoliko je ova vrednost prevelika moguće je prekoračiti minimum (divergirati, tj. udaljavati od minimuma). Kod
 premale vrednosti, postojaće više iteracija gradijentnog spusta, a samim tim dužina celog procesa treniranja će se povećati.
 
 Shema po kojoj se vrši propagacija unapred u dvoslojnom perceptronu je: 
