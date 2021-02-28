@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.2.28)  28 FEB 2021 22:14
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2021.2.28)  28 FEB 2021 22:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1075,17 +1075,49 @@ Overfull \hbox (16.04504pt too wide) detected at line 430
 [][]
  []
 
-[5] [6] [7] (./Višeslojni-perceptron.aux)
+[5] [6] [7]
+Overfull \hbox (186.58258pt too wide) detected at line 565
+[][][][][][][][][][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][] 
+[][][] [] [][][] [][] [][] [][] [][] [][] [][] [][] [][] [][]
+ []
+
+
+Overfull \hbox (406.72711pt too wide) detected at line 581
+[][][][] [] [] []
+ []
+
+
+Overfull \hbox (296.28288pt too wide) detected at line 582
+[] [] [] [] [] [] [][][] [] [] [] [] [] [] [] [][][] [] []
+ []
+
+
+Overfull \hbox (153.35786pt too wide) detected at line 597
+[][][][][][][][][][][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][] [][][
+] [][][] [] [][][][][][][][][][][] [][][] [][][] [][][] [][][] [][][] [][][] []
+[][] [][][] [][][] [] [][] [] [][][][][][][][][][][] [][][] [][][] [][][] [][][
+] [][][] [][][] [][][] [][][] [][][][]
+ []
+
+[8] [9] [10]
+Underfull \vbox (badness 10000) detected at line 781
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 781
+ []
+
+[11] [12] (./Višeslojni-perceptron.aux)
 Package rerunfilecheck Info: File `Višeslojni-perceptron.out' has not changed.
-(rerunfilecheck)             Checksum: DB147A046194917ECFA008665126EAD0;1715.
+(rerunfilecheck)             Checksum: 2F9F1C44AA53BEADD5AE45EC0F55E2F2;1867.
  ) 
 Here is how much of TeX's memory you used:
- 18034 strings out of 478429
- 316604 string characters out of 5860210
- 813192 words of memory out of 5000000
- 37607 multiletter control sequences out of 15000+600000
- 409995 words of font info for 82 fonts, out of 8000000 for 9000
+ 18038 strings out of 478429
+ 316677 string characters out of 5860210
+ 823239 words of memory out of 5000000
+ 37609 multiletter control sequences out of 15000+600000
+ 410003 words of font info for 83 fonts, out of 8000000 for 9000
  478 hyphenation exceptions out of 8191
- 98i,14n,122p,374b,453s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 98i,14n,122p,981b,453s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on Višeslojni-perceptron.pdf (7 pages).
+Output written on Višeslojni-perceptron.pdf (12 pages).
