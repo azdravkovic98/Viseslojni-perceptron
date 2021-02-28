@@ -448,16 +448,18 @@ predict <- function(model, X){
 }
 ```
 
-Nađ
+Funkcija koja računa preciznost predikcije modela:
 
 ```{r warning = FALSE, message = FALSE}
 accuracy <- function(y_pred, y) {
   mean(y==y_pred)*100
 }
 ```
-Ova funkcija nam sluzi da prtvori vektor vrednosti za y u matricu koja ce za svaku vrednost imati jedinicu na odgovarajucem mestu i ostalo 0.
+
+$y$ je vektor sa vrednostima iz skupa $\{0, 1, \dots, 9\}$ i predstavlja stvarnu vrednost slike iz baze MNIST. Funkcija *vector_to_matrix* pretvara vektor $y$ u matricu koja za svaku vrednost ima jedinicu na odgovarajućem mestu, a na ostalim 0. Npr. ako je $i$-ta vrednost vektora $y$ broj 7, tada će transformisana matrica kao $i$-tu kolonu imati $\begin{bmatrix}0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\end{bmatrix}$.
+
 ```{r warning = FALSE, message = FALSE}
-VectorToMatrix <- function(y) {
+vector_to_matrix <- function(y) {
   Y <- matrix(rep(0, 10*length(y)),nrow=length(y))
   for(i in 1:length(y)){
     Y[i,(y[i]+1)] <- 1
@@ -467,18 +469,29 @@ VectorToMatrix <- function(y) {
 ```
 
 
+Konačno, funkcija *train* objedinjuje sve prethodne zaključke i trenira neuronsku mrežu. Kao argumente joj se mogu proslediti brzina učenja ($learn_rate$); broj iteracija - broj koji predstavlja koliko puta će mreža vršiti propagaciju unapred, računanje gradijenta i propagaciju unazad; tip ($type \in \{"classical", "parallel"$) - argument koji određuje da li treniranje vršimo koristeći funkcije koje koriste mehanizme paralelnog programiranja ili ne; dinamiku promene brzine učenja ($dynamic \in \{TRUE, FALSE\}$) - ako je ovaj argument TRUE tada se u svakoj iteraciji brzina učenja deli brojem iteracije, dok ako je argument FALSE onda je brzina učenja fiksiran broj; vreme ($time \in \{TRUE, FALSE\}$) - ako je ovaj argument TRUE funkcija će među povratnim vrednostima imati i vreme izvršavanja; N - broj jezgara računara.  
+
 
 ```{r warning = FALSE, message = FALSE}
-train <- function(data, data_test , hidden1, hidden2, learn_rate = 0.0001, iterations = 100, type = "classical", dynamic = FALSE, time = FALSE, N = 8) {
-  #Ovde ucitavano trening i test podatke
-  y <- VectorToMatrix(data$y)
+train <- function(data, data_test , 
+                  hidden1, hidden2, 
+                  learn_rate = 0.0001, 
+                  iterations = 100, 
+                  type = "uniform", 
+                  dynamic = FALSE, 
+                  time = FALSE, 
+                  N = 8) {
+  # Učitavamo trening i test podatke
+  y <- vector_to_matrix(data$y)
   x <- as.matrix(data[,-785])
-  y_test <- VectorToMatrix(data_test$y)
+  y_test <- vector_to_matrix(data_test$y)
   x_test <- as.matrix(data_test[,-785])
  
+  # Pokrećemo brojač koji meri vrmee izvršavanja funkcije
   start_time <- Sys.time()
  
-  #Ovde cemo cuvati preciznost i gubitak
+  # Deklarišemo nizove u kojima ćemo skladištiti preciznost i vrednost funkcije gubitaka
+  # modela
   accuracy_training_plot <- c()
   accuracy_test_plot <- c()
   loss_plot <- c()
@@ -494,16 +507,25 @@ train <- function(data, data_test , hidden1, hidden2, learn_rate = 0.0001, itera
     w3 <- matrix(rnorm((hidden2 + 1)*10), hidden2+1, 10)
   }
  
-  for (i in 1:iterations) {
+  for (i in 1:iterations){
     ff <- feedforward(x, w1, w2, w3)
    
     if(type == "parallel"){
-      bp <- parallel_backpropagate(x = x, y = y, y_hat = ff$probs, w1 = w1, w2 = w2, w3 = w3, h1 = ff$h1, h2 = ff$h2, learn_rate = learn_rate , N = 8)
+      bp <- parallel_backpropagate(x = x, y = y, y_hat = ff$probs, 
+                                   w1 = w1, w2 = w2, w3 = w3, 
+                                   h1 = ff$h1, h2 = ff$h2, 
+                                   learn_rate = learn_rate , 
+                                   N = 8)
     }else if(dynamic == TRUE){
-      #ovde moze da se menja kako se dinamicki menja lear_rate
-      bp <- backpropagate(x = x, y = y, y_hat = ff$probs, w1 = w1, w2 = w2, w3 = w3, h1 = ff$h1, h2 = ff$h2, learn_rate = learn_rate/i)
+      # ovde moze da se menja kako se dinamicki menja lear_rate
+      bp <- backpropagate(x = x, y = y, y_hat = ff$probs, 
+                          w1 = w1, w2 = w2, w3 = w3, 
+                          h1 = ff$h1, h2 = ff$h2, 
+                          learn_rate = learn_rate/i)
     }else{
-    bp <- backpropagate(x = x, y = y, y_hat = ff$probs, w1 = w1, w2 = w2, w3 = w3, h1 = ff$h1, h2 = ff$h2, learn_rate = learn_rate)
+    bp <- backpropagate(x = x, y = y, y_hat = ff$probs, 
+                        w1 = w1, w2 = w2, w3 = w3, 
+                        h1 = ff$h1, h2 = ff$h2, learn_rate = learn_rate)
     }
    
     w1 <- bp$w1
@@ -524,7 +546,11 @@ train <- function(data, data_test , hidden1, hidden2, learn_rate = 0.0001, itera
       print(paste("Iteration:",i))
       print(paste("Loss:",loss(y, ff$probs)))
     }
-    result <- list(output = ff$probs, w1 = w1, w2 = w2, w3 = w3, accuracy_training_plot = accuracy_training_plot,accuracy_test_plot = accuracy_test_plot, loss_plot = loss_plot)
+    result <- list(output = ff$probs, 
+                   w1 = w1, w2 = w2, w3 = w3, 
+                   accuracy_training_plot = accuracy_training_plot,
+                   accuracy_test_plot = accuracy_test_plot, 
+                   loss_plot = loss_plot)
   }
  
   end_time <- Sys.time()
@@ -536,7 +562,7 @@ train <- function(data, data_test , hidden1, hidden2, learn_rate = 0.0001, itera
 ```
 
 
-Treniramo jednu neuronsku mrezu, referentne vrednosti su krece od oko 2m spusta se na oko 100k za 60k slika, i krece od 100k i spusta se na 20k za 10k slika
+Treniramo jednu neuronsku mrežu. Referentne vrednosti  ČEGAAAA???? se kreću od 2m spušta se na oko 100k za 60k slika, i krece od 100k i spusta se na 20k za 10k slika
 
 <!-- ```{r warning = FALSE, message = FALSE} -->
 
