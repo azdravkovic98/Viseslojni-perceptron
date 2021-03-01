@@ -578,7 +578,7 @@ train <- function(data, data_test ,
   # U slučaju da je prosleđen argument time = TRUE funkcija vraća i broj 
   # sekundi izvršavanja
   if(time == TRUE)
-    print(round(end_time - start_time,2))
+    print(round(end_time - start_time, 2))
  
   result
 }
@@ -598,7 +598,27 @@ plot_accuracy <- function(model) {
 ```
 
 
+```{r warning = FALSE, message = FALSE}
+plot_loss <- function(model) {
+  x <- seq(5,length(model$loss_plot)*5,5)
+  plot(x, model$loss, xlab = "iterations", ylab = "loss", type = "l", col = "red")
+}
+```
 
+
+
+```{r}
+m3 <- train(data = data_training, 
+            data_test = data_test, 
+            hidden1 = 128, hidden2 = 128, 
+            learn_rate = 0.00005, 
+            iterations = 150, 
+            output = TRUE, 
+            time = TRUE)
+plot_accuracy(m3)
+plot_loss(m3)
+saveRDS(m3, file = "normal, 150, 0.00005, 128, 128")
+```
 
 
 <!-- ```{r warning = FALSE, message = FALSE} -->
