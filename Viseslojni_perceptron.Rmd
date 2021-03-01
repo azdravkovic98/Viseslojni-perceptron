@@ -480,7 +480,8 @@ train <- function(data, data_test ,
                   type = "uniform", 
                   dynamic = FALSE, 
                   time = FALSE, 
-                  N = 8) {
+                  N = 8,
+                  output = FALSE) {
   # Učitavamo trening i test podatke
   y <- vector_to_matrix(data$y)
   x <- as.matrix(data[,-785])
@@ -499,14 +500,14 @@ train <- function(data, data_test ,
   d <- ncol(x)
   # Prve matrice težina inicijalizujemo slučajnim vrednostima
   if(type == "uniform"){
-    w1 <- cbind(0, matrix(runif((d+1) * hidden1), d + 1, hidden1))
-    w2 <- cbind(0, matrix(runif((hidden1+1)*hidden2), hidden1 + 1, hidden2))
-    w3 <- matrix(runif((hidden2 + 1)*10), hidden2 + 1, 10)
+     w1 <- cbind(0,matrix(runif((d+1) * hidden1, -1, 1), d+1, hidden1))
+    w2 <- cbind(0, matrix(runif((hidden1+1)*hidden2, -1, 1), hidden1+1, hidden2))
+    w3 <- matrix(runif((hidden2 + 1)*10, -1, 1), hidden2+1, 10)
   }
   else {
-    w1 <- cbind(0, matrix(rnorm((d+1) * hidden1), d + 1, hidden1))
-    w2 <- cbind(0, matrix(rnorm((hidden1+1)*hidden2), hidden1 + 1, hidden2))
-    w3 <- matrix(rnorm((hidden2 + 1)*10), hidden2 + 1, 10)
+    w1 <- cbind(0,matrix(rnorm((d+1) * hidden1), d+1, hidden1))
+    w2 <- cbind(0, matrix(rnorm((hidden1+1)*hidden2), hidden1+1, hidden2))
+    w3 <- matrix(rnorm((hidden2 + 1)*10), hidden2+1, 10)
   }
  
   # Sledeći koraci se ponavljaju onoliko puta koliki je broj iteracija
@@ -529,7 +530,7 @@ train <- function(data, data_test ,
       bp <- backpropagate(x = x, y = y, y_hat = ff$probs, 
                           w1 = w1, w2 = w2, w3 = w3, 
                           h1 = ff$h1, h2 = ff$h2, 
-                          learn_rate = learn_rate/i)
+                          learn_rate = learn_rate/2^(i/50))
     }
     else{
     bp <- backpropagate(x = x, y = y, y_hat = ff$probs, 
@@ -549,21 +550,28 @@ train <- function(data, data_test ,
       y_test_pred <- predict(result, x_test)
       y_train_pred <- predict(result, x)
       loss_plot <- c(loss_plot,l)
-      accuracy_test_plot <- c(accuracy_test_plot, accuracy(y_test_pred,data_test$y))
-      accuracy_training_plot <- c(accuracy_training_plot, accuracy(y_train_pred,data$y))
+      a1 <- accuracy(y_test_pred,data_test$y)
+      accuracy_test_plot <- c(accuracy_test_plot,a1)
+      accuracy_training_plot <- c(accuracy_training_plot,accuracy(y_train_pred,data$y))
     }
    
-    #OBRISI OVO
-    if(i%%10 == 0){
-      print(paste("Iteration:",i))
-      print(paste("Loss:",loss(y, ff$probs)))
+    # U slučaju da se za argument output prosledi vrednost TRUE svake 10-te 
+    # iteracije ispisivaće se broj iteracije i vrednost funkcije gubitaka
+    # u naznačenoj iteraciji. Ovo je od pomoći u praćenju treniranje mreže
+    # čije treniranje traje dugo
+    if((i %% 10 == 0) && (output == TRUE)){
+      print(paste("Iteration: ", i))
+      print(paste("Loss: ", loss(y, ff$probs)))
     }
+    
+    # Povratni vektor
     result <- list(output = ff$probs, 
                    w1 = w1, w2 = w2, w3 = w3, 
-                   accuracy_training_plot = accuracy_training_plot,
+                   accuracy_training_plot = accuracy_training_plot, 
                    accuracy_test_plot = accuracy_test_plot, 
-                   loss_plot = loss_plot)
-  }
+                   loss_plot = loss_plot, 
+                   time = round(Sys.time() - start_time, 2))
+      }
  
   # Zaustavljamo brojač koji meri vreme izvršavanja funkcija
   end_time <- Sys.time()
@@ -578,6 +586,20 @@ train <- function(data, data_test ,
 
 
 Treniramo jednu neuronsku mrežu. Referentne vrednosti  ČEGAAAA???? se kreću od 2m spušta se na oko 100k za 60k slika, i krece od 100k i spusta se na 20k za 10k slika
+
+```{r warning = FALSE, message = FALSE}
+plot_accuracy <- function(model) {
+  x <- seq(5, length(model$accuracy_test_plot)*5, 5)
+  plot(x, model$accuracy_test_plot, xlab = "iterations", ylab = "accuracy(%)", type = "l", col = "red", ylim = c(0,100))
+  #lines(x,model$accuracy_test_plot, col= "red")
+  lines(x, model$accuracy_training_plot, col = "green")
+  legend("bottomright", legend = c("Test", "Training"), col = c("red", "green"), lty = 1:2, cex = 0.6)
+}
+```
+
+
+
+
 
 <!-- ```{r warning = FALSE, message = FALSE} -->
 
