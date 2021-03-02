@@ -620,6 +620,21 @@ plot_loss(m3)
 saveRDS(m3, file = "normal, 150, 0.00005, 128, 128")
 ```
 
+```{r}
+m5 <- train(data = data_training, 
+            data_test = data_test, 
+            hidden1 = 256, hidden2 = 256, 
+            learn_rate = 0.0001, 
+            iterations = 300, 
+            output = TRUE, 
+            time = TRUE, 
+            dynamic = TRUE)
+plot_accuracy(m5)
+plot_loss(m5)
+saveRDS(m5, file = "dynamic, 300, 0.0001, 256, 256")
+```
+
+
 
 <!-- ```{r warning = FALSE, message = FALSE} -->
 
